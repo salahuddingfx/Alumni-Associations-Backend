@@ -18,6 +18,10 @@ const registerForEvent = async (req, res) => {
       userImage = req.body.userImage;
     }
 
+    if (!userImage) {
+      return sendError(res, 'Profile photo is required for event registration', 400);
+    }
+
     const registrationData = {
       ...req.body,
       eventId,
