@@ -14,6 +14,8 @@ const registerForEvent = async (req, res) => {
     let userImage = '';
     if (req.file) {
       userImage = await uploadToCloudinary(req.file.path, 'event_registrations');
+    } else if (req.body.userImage) {
+      userImage = req.body.userImage;
     }
 
     const registrationData = {
