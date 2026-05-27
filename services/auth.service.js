@@ -44,7 +44,7 @@ const loginUser = async (identifier, password) => {
 };
 
 const updateUserProfile = async (userId, updateData) => {
-  const { email, password, username, phone } = updateData;
+  const { email, password, username, phone, fullName, profilePhoto } = updateData;
 
   const user = await User.findById(userId);
   if (!user) {
@@ -69,8 +69,29 @@ const updateUserProfile = async (userId, updateData) => {
   if (password) {
     user.password = password;
   }
+  if (fullName !== undefined) {
+    user.fullName = fullName;
+  }
+  if (profilePhoto !== undefined) {
+    user.profilePhoto = profilePhoto;
+  }
 
   await user.save();
+
+  // Sync email, phone, fullName, and profilePhoto to Member profile if it exists
+  const Member = require('../models/member.model');
+  const memberUpdate = { email: user.email, phone: user.phone };
+  if (user.fullName) {
+    memberUpdate['name.en'] = user.fullName;
+  }
+  if (user.profilePhoto) {
+    memberUpdate.profilePhoto = user.profilePhoto;
+  }
+  await Member.findOneAndUpdate(
+    { user: userId },
+    memberUpdate
+  );
+
   return user;
 };
 
