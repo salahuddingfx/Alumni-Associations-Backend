@@ -1,6 +1,7 @@
 const authService = require('../services/auth.service');
 const { sendSuccess, sendError } = require('../utils/response');
 const { setTokenCookies, clearTokenCookies } = require('../utils/generateToken');
+const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
 
 const register = async (req, res, next) => {
   try {
@@ -27,6 +28,8 @@ const login = async (req, res, next) => {
         username: user.username,
         phone: user.phone,
         role: user.role,
+        fullName: user.fullName || '',
+        profilePhoto: user.profilePhoto || '',
       },
       accessToken,
     });
@@ -56,6 +59,8 @@ const getMe = async (req, res, next) => {
         username: req.user.username,
         phone: req.user.phone,
         role: req.user.role,
+        fullName: req.user.fullName || '',
+        profilePhoto: req.user.profilePhoto || '',
       },
     });
   } catch (error) {
@@ -68,8 +73,18 @@ const updateMe = async (req, res, next) => {
     if (!req.user) {
       return sendError(res, 'Unauthorized', 401);
     }
-    const { email, password, username, phone } = req.body;
-    const updated = await authService.updateUserProfile(req.user._id, { email, password, username, phone });
+    const { email, password, username, phone, fullName } = req.body;
+    let profilePhoto = req.body.profilePhoto || '';
+    if (req.file) {
+      profilePhoto = await uploadToCloudinary(req.file.path, 'user_profiles');
+    }
+
+    const updateData = { email, password, username, phone, fullName };
+    if (profilePhoto) {
+      updateData.profilePhoto = profilePhoto;
+    }
+
+    const updated = await authService.updateUserProfile(req.user._id, updateData);
     return sendSuccess(res, 'Profile updated successfully', {
       user: {
         id: updated._id,
@@ -77,6 +92,8 @@ const updateMe = async (req, res, next) => {
         username: updated.username,
         phone: updated.phone,
         role: updated.role,
+        fullName: updated.fullName || '',
+        profilePhoto: updated.profilePhoto || '',
       }
     });
   } catch (error) {
