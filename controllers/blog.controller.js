@@ -1,5 +1,6 @@
 const Blog = require('../models/blog.model');
 const { sendSuccess, sendError } = require('../utils/response');
+const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
 const generateSlug = require('../utils/generateSlug');
 
 const getBlogs = async (req, res) => {
@@ -25,7 +26,10 @@ const getBlogDetail = async (req, res) => {
 
 const createBlog = async (req, res) => {
   try {
-    const thumbnail = req.file ? `/uploads/${req.file.filename}` : '';
+    let thumbnail = '';
+    if (req.file) {
+      thumbnail = await uploadToCloudinary(req.file.path, 'blog_photos');
+    }
     const blogData = {
       ...req.body,
       thumbnail,
