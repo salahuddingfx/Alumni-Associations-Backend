@@ -14,6 +14,14 @@ const memberSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  pscBatch: {
+    type: String,
+    default: '',
+  },
+  bloodGroup: {
+    type: String,
+    default: '',
+  },
   profession: {
     type: String,
     default: '',
