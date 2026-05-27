@@ -6,6 +6,7 @@ const path = require('path');
 
 const errorMiddleware = require('./middlewares/error.middleware');
 const rateLimit = require('./middlewares/rateLimit.middleware');
+const loggerMiddleware = require('./middlewares/logger.middleware');
 
 // Routes imports
 const authRoutes = require('./routes/auth.routes');
@@ -20,6 +21,9 @@ const donationRoutes = require('./routes/donation.routes');
 const settingRoutes = require('./routes/setting.routes');
 
 const app = express();
+
+// Request logger
+app.use(loggerMiddleware);
 
 // Security Middlewares
 app.use(helmet({
