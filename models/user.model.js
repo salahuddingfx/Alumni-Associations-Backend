@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema({
     enum: ['superadmin', 'admin', 'moderator'],
     default: 'moderator',
   },
+  fullName: {
+    type: String,
+    default: '',
+  },
+  profilePhoto: {
+    type: String,
+    default: '',
+  },
   isApproved: {
     type: Boolean,
     default: false,

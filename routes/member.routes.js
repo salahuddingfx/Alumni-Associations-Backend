@@ -7,6 +7,8 @@ const upload = require('../middlewares/upload.middleware');
 const router = express.Router();
 
 router.get('/', memberController.getMembers);
+router.get('/my/profile', authMiddleware, memberController.getMyProfile);
+router.put('/my/profile', authMiddleware, upload.single('profilePhoto'), memberController.updateMyProfile);
 router.get('/:memberId', memberController.getMemberDetail);
 router.post('/', upload.single('profilePhoto'), memberController.createMemberProfile);
 
