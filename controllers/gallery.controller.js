@@ -1,5 +1,6 @@
 const galleryService = require('../services/gallery.service');
 const { sendSuccess, sendError } = require('../utils/response');
+const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
 
 const getGallery = async (req, res) => {
   try {
@@ -17,7 +18,10 @@ const getGallery = async (req, res) => {
 
 const createGalleryItem = async (req, res) => {
   try {
-    const url = req.file ? `/uploads/${req.file.filename}` : req.body.url;
+    let url = req.body.url;
+    if (req.file) {
+      url = await uploadToCloudinary(req.file.path, 'gallery_photos');
+    }
     if (!url) {
       return sendError(res, 'File or URL is required', 400);
     }

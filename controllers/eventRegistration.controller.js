@@ -1,6 +1,7 @@
 const EventRegistration = require('../models/eventRegistration.model');
 const Event = require('../models/event.model');
 const { sendSuccess, sendError } = require('../utils/response');
+const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
 
 const registerForEvent = async (req, res) => {
   try {
@@ -10,7 +11,11 @@ const registerForEvent = async (req, res) => {
       return sendError(res, 'Event not found', 404);
     }
 
-    const userImage = req.file ? `/uploads/${req.file.filename}` : '';
+    let userImage = '';
+    if (req.file) {
+      userImage = await uploadToCloudinary(req.file.path, 'event_registrations');
+    }
+
     const registrationData = {
       ...req.body,
       eventId,
@@ -67,8 +72,43 @@ const getMyRegistrations = async (req, res) => {
   }
 };
 
+const getAllEventRegistrations = async (req, res) => {
+  try {
+    const list = await EventRegistration.find().populate('eventId').sort({ createdAt: -1 });
+    return sendSuccess(res, 'All event registrations retrieved successfully', list);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
+const updatePaymentStatus = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const { paymentStatus } = req.body;
+    
+    if (!['pending', 'completed', 'failed'].includes(paymentStatus)) {
+      return sendError(res, 'Invalid payment status', 400);
+    }
+
+    const reg = await EventRegistration.findByIdAndUpdate(
+      registrationId,
+      { paymentStatus },
+      { new: true }
+    );
+    if (!reg) {
+      return sendError(res, 'Registration not found', 404);
+    }
+
+    return sendSuccess(res, 'Payment status updated successfully', reg);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   registerForEvent,
   getEventRegistrations,
   getMyRegistrations,
+  getAllEventRegistrations,
+  updatePaymentStatus,
 };

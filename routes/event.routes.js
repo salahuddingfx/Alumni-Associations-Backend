@@ -14,6 +14,20 @@ const router = express.Router();
 
 router.use('/:eventId/registration', eventRegistrationRoutes);
 
+router.get(
+  '/admin/registrations',
+  authMiddleware,
+  adminMiddleware(['superadmin', 'admin', 'moderator']),
+  eventRegistrationController.getAllEventRegistrations
+);
+
+router.put(
+  '/admin/registrations/:registrationId/payment-status',
+  authMiddleware,
+  adminMiddleware(['superadmin', 'admin', 'moderator']),
+  eventRegistrationController.updatePaymentStatus
+);
+
 router.get('/my/registrations', authMiddleware, eventRegistrationController.getMyRegistrations);
 router.get('/', eventController.getEvents);
 router.get('/:eventId', eventController.getEventDetail);

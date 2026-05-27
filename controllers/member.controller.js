@@ -1,6 +1,7 @@
 const Member = require('../models/member.model');
 const { sendSuccess, sendError } = require('../utils/response');
 const getPaginationOptions = require('../utils/pagination');
+const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
 
 const getMembers = async (req, res) => {
   try {
@@ -50,7 +51,10 @@ const getMemberDetail = async (req, res) => {
 
 const createMemberProfile = async (req, res) => {
   try {
-    const profilePhoto = req.file ? `/uploads/${req.file.filename}` : '';
+    let profilePhoto = '';
+    if (req.file) {
+      profilePhoto = await uploadToCloudinary(req.file.path, 'member_profiles');
+    }
     const memberData = {
       ...req.body,
       profilePhoto,
