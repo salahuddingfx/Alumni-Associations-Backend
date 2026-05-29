@@ -21,6 +21,12 @@ router.get(
   adminMiddleware(['superadmin', 'admin', 'moderator']),
   memberController.getPendingMembers
 );
+router.get(
+  '/admin/all',
+  authMiddleware,
+  adminMiddleware(['superadmin', 'admin', 'moderator']),
+  memberController.getAllMembersAdmin
+);
 router.put(
   '/:memberId/approve',
   authMiddleware,
