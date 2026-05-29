@@ -111,10 +111,37 @@ const updatePaymentStatus = async (req, res) => {
   }
 };
 
+const checkinEventRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.body;
+    
+    const reg = await EventRegistration.findById(registrationId);
+    if (!reg) {
+      return sendError(res, 'Ticket registration not found.', 404);
+    }
+    
+    if (reg.checkedIn) {
+      return sendError(res, `Ticket already checked in at ${new Date(reg.checkedInAt).toLocaleTimeString()}`, 400);
+    }
+    
+    reg.checkedIn = true;
+    reg.checkedInAt = new Date();
+    await reg.save();
+    
+    const { logActivity } = require('../utils/logger');
+    await logActivity(req, 'EVENT_TICKET_CHECKIN', { registrationId: reg._id, attendeeName: reg.fullName, eventId: reg.eventId });
+    
+    return sendSuccess(res, `Check-in successful for ${reg.fullName}!`, reg);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   registerForEvent,
   getEventRegistrations,
   getMyRegistrations,
   getAllEventRegistrations,
   updatePaymentStatus,
+  checkinEventRegistration,
 };

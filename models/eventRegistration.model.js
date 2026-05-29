@@ -66,6 +66,14 @@ const eventRegistrationSchema = new mongoose.Schema({
     enum: ['pending', 'completed'],
     default: 'pending',
   },
+  checkedIn: {
+    type: Boolean,
+    default: false,
+  },
+  checkedInAt: {
+    type: Date,
+    default: null,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('EventRegistration', eventRegistrationSchema);

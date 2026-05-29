@@ -21,6 +21,13 @@ router.get(
   eventRegistrationController.getAllEventRegistrations
 );
 
+router.post(
+  '/admin/checkin',
+  authMiddleware,
+  adminMiddleware(['superadmin', 'admin', 'moderator']),
+  eventRegistrationController.checkinEventRegistration
+);
+
 router.put(
   '/admin/registrations/:registrationId/payment-status',
   authMiddleware,
