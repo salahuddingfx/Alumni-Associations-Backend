@@ -143,11 +143,17 @@ const updateMyProfile = async (req, res) => {
       profilePhoto = await uploadToCloudinary(req.file.path, 'member_profiles');
     }
 
+    const isSpecialRole = ['superadmin', 'admin', 'moderator'].includes(req.user.role);
+
     const memberData = {
       ...req.body,
       user: req.user.id,
       email: req.user.email,
     };
+
+    if (isSpecialRole) {
+      memberData.isApproved = true;
+    }
 
     if (profilePhoto) {
       memberData.profilePhoto = profilePhoto;
@@ -162,6 +168,13 @@ const updateMyProfile = async (req, res) => {
       { ...memberData },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
+
+    // Promote 'user' role to 'member' upon profile completion
+    if (req.user.role === 'user') {
+      const User = require('../models/user.model');
+      await User.findByIdAndUpdate(req.user.id, { role: 'member' });
+      req.user.role = 'member';
+    }
 
     // Sync phone number to User if it was updated
     if (memberData.phone && memberData.phone !== req.user.phone) {

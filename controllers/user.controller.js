@@ -28,7 +28,7 @@ const updateUserRole = async (req, res) => {
   try {
     const { userId } = req.params;
     const { role } = req.body;
-    if (!['superadmin', 'admin', 'moderator'].includes(role)) {
+    if (!['superadmin', 'admin', 'moderator', 'member', 'user'].includes(role)) {
       return sendError(res, 'Invalid role', 400);
     }
     const user = await User.findByIdAndUpdate(userId, { role }, { new: true }).select('-password');

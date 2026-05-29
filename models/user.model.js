@@ -28,8 +28,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['superadmin', 'admin', 'moderator'],
-    default: 'moderator',
+    enum: ['superadmin', 'admin', 'moderator', 'member', 'user'],
+    default: 'user',
   },
   allowedBatches: {
     type: [String],

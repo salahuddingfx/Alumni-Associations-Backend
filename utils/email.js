@@ -161,12 +161,18 @@ const getTicketTemplate = (registration, event) => {
       }
       @media only screen and (max-width: 520px) {
         .container {
-          margin: 10px auto !important;
+          margin: 5px auto !important;
           border-radius: 8px !important;
-          width: 95% !important;
+          width: 98% !important;
         }
         .content {
-          padding: 20px 15px !important;
+          padding: 15px 10px !important;
+        }
+        .ticket-body {
+          padding: 15px 10px !important;
+        }
+        .ticket-header {
+          padding: 12px 10px !important;
         }
         .ticket-col {
           display: block !important;
@@ -187,13 +193,13 @@ const getTicketTemplate = (registration, event) => {
   <body style="background-color: #f8fafc; margin: 0; padding: 0; width: 100%;">
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; background-color: #f8fafc; margin: 0; padding: 0;">
       <tr>
-        <td align="center" style="padding: 20px 10px;">
+        <td align="center" style="padding: 10px 5px;">
           <!-- Container -->
           <table class="container" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); overflow: hidden; border-top: 8px solid #003b73;">
             <tr>
               <td>
                 <!-- Header -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; background: linear-gradient(135deg, #003b73 0%, #00254a 100%); padding: 30px 20px; text-align: center;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; background: linear-gradient(135deg, #003b73 0%, #00254a 100%); padding: 25px 15px; text-align: center;">
                   <tr>
                     <td align="center">
                       <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; font-family: 'Outfit', 'Inter', sans-serif;">PRACTON ALUMNI ASSOCIATION</h1>
@@ -204,23 +210,23 @@ const getTicketTemplate = (registration, event) => {
               </td>
             </tr>
             <tr>
-              <td class="content" style="padding: 30px 25px;">
+              <td class="content" style="padding: 25px 15px;">
                 <!-- Welcome text -->
-                <div class="welcome" style="font-size: 15px; line-height: 1.6; margin-bottom: 25px; color: #334155;">
+                <div class="welcome" style="font-size: 15px; line-height: 1.6; margin-bottom: 20px; color: #334155;">
                   Dear <strong>${registration.fullName}</strong>,<br>
                   Thank you for registering. Your ticket for the upcoming event has been generated successfully. Please find your event ticket details below:
                 </div>
                 
                 <!-- Ticket Card -->
-                <table class="ticket" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 30px; background-color: #ffffff;">
+                <table class="ticket" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 25px; background-color: #ffffff;">
                   <tr>
-                    <td class="ticket-header" style="background-color: #f1f5f9; padding: 15px 20px; border-bottom: 1px dashed #cbd5e1; position: relative;">
+                    <td class="ticket-header" style="background-color: #f1f5f9; padding: 12px 15px; border-bottom: 1px dashed #cbd5e1; position: relative;">
                       <h2 class="ticket-title" style="font-size: 18px; font-weight: 700; color: #003b73; margin: 0; font-family: 'Outfit', 'Inter', sans-serif;">${eventTitle}</h2>
                       ${eventTitleBn ? `<div class="ticket-subtitle" style="font-size: 13px; color: #64748b; margin: 3px 0 0 0; font-style: italic;">${eventTitleBn}</div>` : ''}
                     </td>
                   </tr>
                   <tr>
-                    <td class="ticket-body" style="padding: 20px;">
+                    <td class="ticket-body" style="padding: 15px;">
                       
                       <!-- Attendee Photo if available -->
                       ${avatarUrl ? `
@@ -298,7 +304,7 @@ const getTicketTemplate = (registration, event) => {
                 </table>
                 
                 <!-- CTA Button -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; text-align: center; margin: 35px 0;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; text-align: center; margin: 30px 0;">
                   <tr>
                     <td align="center">
                       <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/profile" class="cta-button" style="background-color: #003b73; color: #ffffff !important; text-decoration: none; padding: 12px 30px; font-size: 15px; font-weight: 600; border-radius: 8px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0, 59, 115, 0.2); font-family: 'Outfit', 'Inter', sans-serif;">View Virtual ID Card</a>
@@ -402,11 +408,14 @@ const getAdminNotificationTemplate = (registration, event) => {
       }
       @media only screen and (max-width: 520px) {
         .container {
-          margin: 10px auto !important;
-          width: 95% !important;
+          margin: 5px auto !important;
+          width: 98% !important;
         }
         .content {
-          padding: 20px 15px !important;
+          padding: 15px 10px !important;
+        }
+        .ticket-body {
+          padding: 15px 10px !important;
         }
         .ticket-col {
           display: block !important;
@@ -424,7 +433,7 @@ const getAdminNotificationTemplate = (registration, event) => {
   <body style="background-color: #f1f5f9; margin: 0; padding: 0; width: 100%;">
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; background-color: #f1f5f9; margin: 0; padding: 0;">
       <tr>
-        <td align="center" style="padding: 20px 10px;">
+        <td align="center" style="padding: 10px 5px;">
           <table class="container" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; border-top: 8px solid #dc2626; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
             <tr>
               <td style="background-color: #7f1d1d; padding: 20px; text-align: center;">
@@ -433,7 +442,7 @@ const getAdminNotificationTemplate = (registration, event) => {
               </td>
             </tr>
             <tr>
-              <td class="content" style="padding: 25px;">
+              <td class="content" style="padding: 25px 15px;">
                 <p style="font-size: 14px; margin-bottom: 20px; color: #475569; line-height: 1.5;">
                   A new registration form has been submitted for the event: <strong>${eventTitle}</strong>. Below is the full profile details submitted by the alumnus for administrative review:
                 </p>
@@ -441,7 +450,7 @@ const getAdminNotificationTemplate = (registration, event) => {
                 <!-- Full details card -->
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; background-color: #f8fafc; margin-bottom: 25px;">
                   <tr>
-                    <td style="padding: 20px;">
+                    <td class="ticket-body" style="padding: 15px;">
                       
                       ${avatarUrl ? `
                       <div style="text-align: center; margin-bottom: 20px;">
