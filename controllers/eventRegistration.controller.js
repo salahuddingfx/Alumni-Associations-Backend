@@ -2,6 +2,7 @@ const EventRegistration = require('../models/eventRegistration.model');
 const Event = require('../models/event.model');
 const { sendSuccess, sendError } = require('../utils/response');
 const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
+const { sendTicketEmail, sendAdminNotificationEmail } = require('../utils/email');
 
 const registerForEvent = async (req, res) => {
   try {
@@ -42,15 +43,15 @@ const registerForEvent = async (req, res) => {
     event.rsvpCount = (event.rsvpCount || 0) + 1;
     await event.save();
 
-    // Mock Email Confirmation / Ticket dispatch
-    console.log(`\n======================================================`);
-    console.log(`✉️ [TICKET SENT] Event confirmation ticket sent!`);
-    console.log(`   Recipient: ${registration.email}`);
-    console.log(`   Event: ${event.title.en} (${event.title.bn})`);
-    console.log(`   PSC Batch: ${registration.pscBatch}`);
-    console.log(`   Payment Mode: ${registration.paymentType.toUpperCase()}`);
-    console.log(`   Status: ${registration.paymentStatus.toUpperCase()}`);
-    console.log(`======================================================\n`);
+    // Dispatch real email confirmation ticket asynchronously
+    sendTicketEmail(registration, event).catch((err) => {
+      console.error(`Failed to send event ticket email for registration ${registration._id}:`, err.message);
+    });
+
+    // Dispatch full registration credentials notification to the administration
+    sendAdminNotificationEmail(registration, event).catch((err) => {
+      console.error(`Failed to send admin notification email for registration ${registration._id}:`, err.message);
+    });
 
     return sendSuccess(res, 'Event registration successful! Your confirmation ticket has been emailed.', registration, 201);
   } catch (error) {
