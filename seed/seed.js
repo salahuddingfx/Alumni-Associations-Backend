@@ -33,6 +33,7 @@ const generalSettings = {
     facebook: 'https://facebook.com/practonalumni',
     linkedin: 'https://linkedin.com/company/practonalumni',
     youtube: 'https://youtube.com/@practonalumni',
+    introVideoUrl: 'https://www.youtube.com/embed/9ycVq2kU7L0',
     bkash: '+880 1711 234567',
     nagad: '+880 1811 234567',
     rocket: '+880 1911 234567',
