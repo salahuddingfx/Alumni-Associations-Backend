@@ -18,6 +18,14 @@ const memberSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  hscBatch: {
+    type: String,
+    default: '',
+  },
+  higherEducation: {
+    type: String,
+    default: '',
+  },
   bloodGroup: {
     type: String,
     default: '',
