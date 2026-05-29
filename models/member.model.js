@@ -40,6 +40,11 @@ const memberSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
   },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other'],
+    default: 'Male',
+  },
   bio: {
     en: { type: String, default: '' },
     bn: { type: String, default: '' },
