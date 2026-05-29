@@ -19,6 +19,7 @@ const committeeRoutes = require('./routes/committee.routes');
 const blogRoutes = require('./routes/blog.routes');
 const donationRoutes = require('./routes/donation.routes');
 const settingRoutes = require('./routes/setting.routes');
+const partnerRoutes = require('./routes/partner.routes');
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.use('/api/v1/committees', committeeRoutes);
 app.use('/api/v1/blogs', blogRoutes);
 app.use('/api/v1/donations', donationRoutes);
 app.use('/api/v1/settings', settingRoutes);
+app.use('/api/v1/partners', partnerRoutes);
 
 // Test Route
 app.get('/health', (req, res) => {
