@@ -1,6 +1,7 @@
 const Committee = require('../models/committee.model');
 const mongoose = require('mongoose');
 const { sendSuccess, sendError } = require('../utils/response');
+const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
 
 const getCommittees = async (req, res) => {
   try {
@@ -17,10 +18,21 @@ const getCommittees = async (req, res) => {
 
 const createCommitteeMember = async (req, res) => {
   try {
-    const image = req.file ? `/uploads/${req.file.filename}` : '';
+    // Handle image upload
+    let image = '';
+    if (req.files && req.files['image'] && req.files['image'][0]) {
+      image = await uploadToCloudinary(req.files['image'][0].path, 'committee_photos');
+    }
+    // Handle banner photo upload
+    let bannerPhoto = '';
+    if (req.files && req.files['bannerPhoto'] && req.files['bannerPhoto'][0]) {
+      bannerPhoto = await uploadToCloudinary(req.files['bannerPhoto'][0].path, 'committee_banners');
+    }
+
     const committeeData = {
       ...req.body,
       image,
+      bannerPhoto,
     };
     if (typeof committeeData.name === 'string') committeeData.name = JSON.parse(committeeData.name);
     if (typeof committeeData.role === 'string') committeeData.role = JSON.parse(committeeData.role);
@@ -55,16 +67,24 @@ const updateCommitteeMember = async (req, res) => {
       return sendError(res, 'Committee member not found', 404);
     }
 
+    // Handle image upload
     let image = existing.image;
-    if (req.file) {
-      image = `/uploads/${req.file.filename}`;
+    if (req.files && req.files['image'] && req.files['image'][0]) {
+      image = await uploadToCloudinary(req.files['image'][0].path, 'committee_photos');
     } else if (req.body.image) {
       image = req.body.image;
+    }
+
+    // Handle banner photo upload
+    let bannerPhoto = existing.bannerPhoto || '';
+    if (req.files && req.files['bannerPhoto'] && req.files['bannerPhoto'][0]) {
+      bannerPhoto = await uploadToCloudinary(req.files['bannerPhoto'][0].path, 'committee_banners');
     }
 
     const committeeData = {
       ...req.body,
       image,
+      bannerPhoto,
     };
 
     if (typeof committeeData.name === 'string') committeeData.name = JSON.parse(committeeData.name);
