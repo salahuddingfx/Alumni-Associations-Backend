@@ -9,6 +9,8 @@ const router = express.Router();
 router.get('/', memberController.getMembers);
 router.get('/my/profile', authMiddleware, memberController.getMyProfile);
 router.put('/my/profile', authMiddleware, upload.single('profilePhoto'), memberController.updateMyProfile);
+router.get('/my/id-card', authMiddleware, memberController.getMyIdCard);
+router.get('/my/id-card/pkpass', authMiddleware, memberController.downloadPkpass);
 router.get('/:memberId', memberController.getMemberDetail);
 router.post('/', upload.single('profilePhoto'), memberController.createMemberProfile);
 
