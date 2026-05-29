@@ -6,15 +6,18 @@ const upload = require('../middlewares/upload.middleware');
 
 const router = express.Router();
 
+// ── Public routes ──────────────────────────────────────────────
 router.get('/', memberController.getMembers);
+router.post('/', upload.single('profilePhoto'), memberController.createMemberProfile);
+
+// ── Authenticated user (self) routes ───────────────────────────
+// Must come before /:memberId to avoid wildcard capture
 router.get('/my/profile', authMiddleware, memberController.getMyProfile);
 router.put('/my/profile', authMiddleware, upload.single('profilePhoto'), memberController.updateMyProfile);
 router.get('/my/id-card', authMiddleware, memberController.getMyIdCard);
 router.get('/my/id-card/pkpass', authMiddleware, memberController.downloadPkpass);
-router.get('/:memberId', memberController.getMemberDetail);
-router.post('/', upload.single('profilePhoto'), memberController.createMemberProfile);
 
-// Protected routes (Admin & Moderators approval flow)
+// ── Admin routes ── Must come before /:memberId wildcard ────────
 router.get(
   '/admin/pending',
   authMiddleware,
@@ -39,5 +42,8 @@ router.delete(
   adminMiddleware(['superadmin', 'admin']),
   memberController.deleteMember
 );
+
+// ── Dynamic param routes (MUST be last) ────────────────────────
+router.get('/:memberId', memberController.getMemberDetail);
 
 module.exports = router;
