@@ -45,6 +45,10 @@ const memberSchema = new mongoose.Schema({
     enum: ['Male', 'Female', 'Other'],
     default: 'Male',
   },
+  totpSecret: {
+    type: String,
+    default: '',
+  },
   bio: {
     en: { type: String, default: '' },
     bn: { type: String, default: '' },
