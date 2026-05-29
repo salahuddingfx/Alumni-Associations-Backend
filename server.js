@@ -12,6 +12,12 @@ const PORT = process.env.PORT || 5000;
 // Helper to simulate a real-time typing animation in the console
 const typeMessage = (text, delay = 15) => {
   return new Promise((resolve) => {
+    // Print instantly if contains non-ASCII (Bengali) or ANSI color codes
+    if (/[^\x00-\x7F]/.test(text) || text.includes('\x1b')) {
+      console.log(text);
+      resolve();
+      return;
+    }
     let index = 0;
     const interval = setInterval(() => {
       process.stdout.write(text[index]);
