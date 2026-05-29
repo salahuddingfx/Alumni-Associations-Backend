@@ -5,7 +5,7 @@ const listNotices = async () => {
   let cached = getNoticesCache();
   if (cached) return cached;
 
-  const notices = await Notice.find().sort({ isSticky: -1, publishDate: -1 });
+  const notices = await Notice.find().sort({ isSticky: -1, publishDate: -1 }).lean();
   setNoticesCache(notices);
   return notices;
 };

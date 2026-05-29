@@ -5,7 +5,7 @@ const listEvents = async () => {
   let cached = getEventsCache();
   if (cached) return cached;
 
-  const events = await Event.find().sort({ date: 1 });
+  const events = await Event.find().sort({ date: 1 }).lean();
   setEventsCache(events);
   return events;
 };
