@@ -6,7 +6,7 @@ const adminMiddleware = require('../middlewares/admin.middleware');
 const router = express.Router();
 
 router.use(authMiddleware);
-router.use(adminMiddleware(['superadmin']));
+router.use(adminMiddleware(['superadmin', 'admin']));
 
 router.get('/', userController.getAllUsers);
 router.put('/:userId/approve', userController.approveUser);
