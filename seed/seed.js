@@ -9,10 +9,10 @@
 
 require('dotenv').config();
 const mongoose = require('mongoose');
-const connectDB = require('../config/db');
+const connectDB = require('../.config/db');
 
-const Setting = require('../models/setting.model');
-const Event = require('../models/event.model');
+const Setting = require('../.models/setting.model');
+const Event = require('../.models/event.model');
 const Notice = require('../models/notice.model');
 const Committee = require('../models/committee.model');
 const Blog = require('../models/blog.model');
