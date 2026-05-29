@@ -30,6 +30,14 @@ const noticeSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  targetBatch: {
+    type: String,
+    default: '',
+  },
+  targetChapter: {
+    type: String,
+    default: '',
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Notice', noticeSchema);
