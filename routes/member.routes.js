@@ -13,7 +13,7 @@ router.post('/', upload.single('profilePhoto'), memberController.createMemberPro
 // ── Authenticated user (self) routes ───────────────────────────
 // Must come before /:memberId to avoid wildcard capture
 router.get('/my/profile', authMiddleware, memberController.getMyProfile);
-router.put('/my/profile', authMiddleware, upload.single('profilePhoto'), memberController.updateMyProfile);
+router.put('/my/profile', authMiddleware, upload.fields([{ name: 'profilePhoto', maxCount: 1 }, { name: 'bannerPhoto', maxCount: 1 }]), memberController.updateMyProfile);
 router.get('/my/id-card', authMiddleware, memberController.getMyIdCard);
 router.get('/my/id-card/pkpass', authMiddleware, memberController.downloadPkpass);
 
