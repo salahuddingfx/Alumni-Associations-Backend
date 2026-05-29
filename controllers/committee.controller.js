@@ -46,8 +46,40 @@ const deleteCommitteeMember = async (req, res) => {
   }
 };
 
+const updateCommitteeMember = async (req, res) => {
+  try {
+    const { committeeId } = req.params;
+    const existing = await Committee.findById(committeeId);
+    if (!existing) {
+      return sendError(res, 'Committee member not found', 404);
+    }
+
+    let image = existing.image;
+    if (req.file) {
+      image = `/uploads/${req.file.filename}`;
+    } else if (req.body.image) {
+      image = req.body.image;
+    }
+
+    const committeeData = {
+      ...req.body,
+      image,
+    };
+
+    if (typeof committeeData.name === 'string') committeeData.name = JSON.parse(committeeData.name);
+    if (typeof committeeData.role === 'string') committeeData.role = JSON.parse(committeeData.role);
+    if (typeof committeeData.socialLinks === 'string') committeeData.socialLinks = JSON.parse(committeeData.socialLinks);
+
+    const committee = await Committee.findByIdAndUpdate(committeeId, committeeData, { new: true });
+    return sendSuccess(res, 'Committee member updated successfully', committee);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   getCommittees,
   createCommitteeMember,
+  updateCommitteeMember,
   deleteCommitteeMember,
 };
