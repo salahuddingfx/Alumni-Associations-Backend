@@ -80,7 +80,14 @@ const createMemberProfile = async (req, res) => {
 
 const getPendingMembers = async (req, res) => {
   try {
-    const members = await Member.find({ isApproved: false });
+    const filter = { isApproved: false };
+
+    // Batch representative scoped filter
+    if (req.user && req.user.role === 'moderator' && Array.isArray(req.user.allowedBatches) && req.user.allowedBatches.length > 0) {
+      filter.batch = { $in: req.user.allowedBatches };
+    }
+
+    const members = await Member.find(filter);
     return sendSuccess(res, 'Pending members fetched successfully', members);
   } catch (error) {
     return sendError(res, error.message, 500);
