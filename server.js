@@ -33,6 +33,31 @@ const startServer = async () => {
   // Connect to Database
   await connectDB();
 
+  // Run Startup Slugs Backfill Migrations
+  try {
+    const Member = require('./models/member.model');
+    const membersWithoutSlug = await Member.find({ $or: [{ slug: { $exists: false } }, { slug: null }, { slug: '' }] });
+    if (membersWithoutSlug.length > 0) {
+      console.log(`[Migration] Found ${membersWithoutSlug.length} members without slugs. Migrating...`);
+      for (const m of membersWithoutSlug) {
+        await m.save();
+      }
+      console.log(`[Migration] Backfilled slugs for ${membersWithoutSlug.length} members.`);
+    }
+
+    const Committee = require('./models/committee.model');
+    const committeeWithoutSlug = await Committee.find({ $or: [{ slug: { $exists: false } }, { slug: null }, { slug: '' }] });
+    if (committeeWithoutSlug.length > 0) {
+      console.log(`[Migration] Found ${committeeWithoutSlug.length} committee members without slugs. Migrating...`);
+      for (const c of committeeWithoutSlug) {
+        await c.save();
+      }
+      console.log(`[Migration] Backfilled slugs for ${committeeWithoutSlug.length} committee members.`);
+    }
+  } catch (migErr) {
+    console.error(`[Migration] Error backfilling slugs:`, migErr.message);
+  }
+
   const server = http.createServer(app);
 
   // Initialize Sockets
