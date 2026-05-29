@@ -96,10 +96,12 @@ const getPendingMembers = async (req, res) => {
 
 const approveMember = async (req, res) => {
   try {
+    const { logActivity } = require('../utils/logger');
     const member = await Member.findByIdAndUpdate(req.params.memberId, { isApproved: true }, { new: true });
     if (!member) {
       return sendError(res, 'Member not found', 404);
     }
+    await logActivity(req, 'MEMBER_APPROVED', { memberId: member._id, name: member.name.en, batch: member.batch });
     return sendSuccess(res, 'Member approved successfully', member);
   } catch (error) {
     return sendError(res, error.message, 500);
@@ -108,10 +110,12 @@ const approveMember = async (req, res) => {
 
 const deleteMember = async (req, res) => {
   try {
+    const { logActivity } = require('../utils/logger');
     const member = await Member.findByIdAndDelete(req.params.memberId);
     if (!member) {
       return sendError(res, 'Member not found', 404);
     }
+    await logActivity(req, 'MEMBER_DELETED', { memberId: member._id, name: member.name.en, batch: member.batch });
     return sendSuccess(res, 'Member deleted successfully');
   } catch (error) {
     return sendError(res, error.message, 500);
