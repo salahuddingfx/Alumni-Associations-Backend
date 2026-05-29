@@ -77,9 +77,22 @@ const updateCommitteeMember = async (req, res) => {
   }
 };
 
+const getCommitteeMemberDetail = async (req, res) => {
+  try {
+    const committee = await Committee.findById(req.params.committeeId);
+    if (!committee) {
+      return sendError(res, 'Committee member not found', 404);
+    }
+    return sendSuccess(res, 'Committee member details retrieved successfully', committee);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   getCommittees,
   createCommitteeMember,
   updateCommitteeMember,
   deleteCommitteeMember,
+  getCommitteeMemberDetail,
 };

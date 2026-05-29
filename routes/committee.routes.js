@@ -7,6 +7,7 @@ const upload = require('../middlewares/upload.middleware');
 const router = express.Router();
 
 router.get('/', committeeController.getCommittees);
+router.get('/:committeeId', committeeController.getCommitteeMemberDetail);
 
 // Protected routes
 router.post(
