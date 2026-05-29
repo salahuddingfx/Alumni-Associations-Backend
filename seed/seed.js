@@ -16,6 +16,7 @@ const Event = require('../models/event.model');
 const Notice = require('../models/notice.model');
 const Committee = require('../models/committee.model');
 const Blog = require('../models/blog.model');
+const Partner = require('../models/partner.model');
 
 // ─── SETTINGS DATA ─────────────────────────────────────────────────────────────
 
@@ -481,6 +482,56 @@ const blogs = [
   }
 ];
 
+// ─── PARTNERS DATA ─────────────────────────────────────────────────────────────
+
+const partners = [
+  {
+    name: {
+      en: 'Dhuapalong Union Parishad',
+      bn: 'ধোয়াপালং ইউনিয়ন পরিষদ'
+    },
+    logo: '/uploads/partner_union_parishad.png',
+    type: 'local_gov',
+    website: 'https://dhuapalongup.coxsbazar.gov.bd',
+    isActive: true,
+    priority: 1
+  },
+  {
+    name: {
+      en: 'Ukhia Development Forum',
+      bn: 'উখিয়া ডেভেলপমেন্ট ফোরাম'
+    },
+    logo: '/uploads/partner_ukhia_forum.png',
+    type: 'ngo_partner',
+    website: 'https://ukhiadf.org',
+    isActive: true,
+    priority: 2
+  },
+  {
+    name: {
+      en: "Cox's Bazar Education Trust",
+      bn: 'কক্সবাজার এডুকেশন ট্রাস্ট'
+    },
+    logo: '/uploads/partner_edu_trust.png',
+    type: 'scholarship_sponsor',
+    website: 'https://coxsbazaredutrust.org',
+    isActive: true,
+    priority: 3
+  },
+  {
+    name: {
+      en: 'Dpian ICT Solutions',
+      bn: 'দ্বীপান আইসিটি সলিউশনস'
+    },
+    logo: '/uploads/partner_dpian_ict.png',
+    type: 'tech_partner',
+    website: 'https://dpian.tech',
+    isActive: true,
+    priority: 4
+  }
+];
+
+
 // ─── MAIN SEED FUNCTION ───────────────────────────────────────────────────────
 
 async function seed() {
@@ -528,6 +579,15 @@ async function seed() {
     console.log(`  ✅ ${blogs.length} blog posts seeded`);
   } else {
     console.log(`  ⏭️  Blogs already exist (${existingBlogCount} found), skipping...`);
+  }
+
+  // ── PARTNERS ──
+  const existingPartnerCount = await Partner.countDocuments();
+  if (existingPartnerCount === 0) {
+    await Partner.insertMany(partners);
+    console.log(`  ✅ ${partners.length} partners seeded`);
+  } else {
+    console.log(`  ⏭️  Partners already exist (${existingPartnerCount} found), skipping...`);
   }
 
   console.log('\n🎉 Seed completed successfully!\n');
