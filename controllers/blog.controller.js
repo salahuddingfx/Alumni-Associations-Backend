@@ -60,9 +60,45 @@ const deleteBlog = async (req, res) => {
   }
 };
 
+const updateBlog = async (req, res) => {
+  try {
+    const { blogId } = req.params;
+    const existing = await Blog.findById(blogId);
+    if (!existing) {
+      return sendError(res, 'Blog post not found', 404);
+    }
+
+    let thumbnail = existing.thumbnail;
+    if (req.file) {
+      thumbnail = await uploadToCloudinary(req.file.path, 'blog_photos');
+    } else if (req.body.thumbnail) {
+      thumbnail = req.body.thumbnail;
+    }
+
+    const blogData = {
+      ...req.body,
+      thumbnail,
+    };
+
+    if (typeof blogData.title === 'string') blogData.title = JSON.parse(blogData.title);
+    if (typeof blogData.content === 'string') blogData.content = JSON.parse(blogData.content);
+
+    // Regenerate slug if title.en has changed
+    if (blogData.title && blogData.title.en && blogData.title.en !== existing.title.en) {
+      blogData.slug = generateSlug(blogData.title.en);
+    }
+
+    const blog = await Blog.findByIdAndUpdate(blogId, blogData, { new: true });
+    return sendSuccess(res, 'Blog post updated successfully', blog);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   getBlogs,
   getBlogDetail,
   createBlog,
+  updateBlog,
   deleteBlog,
 };
