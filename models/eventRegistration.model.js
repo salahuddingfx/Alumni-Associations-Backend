@@ -61,6 +61,18 @@ const eventRegistrationSchema = new mongoose.Schema({
     enum: ['cash', 'digital'],
     default: 'cash',
   },
+  paymentNumber: {
+    type: String,
+    default: '',
+  },
+  paymentProvider: {
+    type: String,
+    default: '',
+  },
+  transactionId: {
+    type: String,
+    default: '',
+  },
   paymentStatus: {
     type: String,
     enum: ['pending', 'completed'],
