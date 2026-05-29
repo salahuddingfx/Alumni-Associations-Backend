@@ -50,16 +50,12 @@ const getMemberDetail = async (req, res) => {
     const { memberId } = req.params;
     let member = null;
 
-    if (mongoose.Types.ObjectId.isValid(memberId)) {
-      member = await Member.findById(memberId).populate('user', 'username');
-    }
+    // First try to look up by slug (case-insensitive)
+    member = await Member.findOne({ slug: memberId.toLowerCase().trim() }).populate('user', 'username');
 
-    if (!member) {
-      const usernameLower = memberId.toLowerCase().trim();
-      const user = await User.findOne({ username: usernameLower });
-      if (user) {
-        member = await Member.findOne({ user: user._id }).populate('user', 'username');
-      }
+    // Fallback: look up by ObjectID
+    if (!member && mongoose.Types.ObjectId.isValid(memberId)) {
+      member = await Member.findById(memberId).populate('user', 'username');
     }
 
     if (!member) {
@@ -179,11 +175,12 @@ const updateMyProfile = async (req, res) => {
     if (typeof memberData.bio === 'string') memberData.bio = JSON.parse(memberData.bio);
     if (typeof memberData.socialLinks === 'string') memberData.socialLinks = JSON.parse(memberData.socialLinks);
 
-    const member = await Member.findOneAndUpdate(
-      { user: req.user.id },
-      { ...memberData },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
-    );
+    let member = await Member.findOne({ user: req.user.id });
+    if (!member) {
+      member = new Member({ user: req.user.id, email: req.user.email });
+    }
+    Object.assign(member, memberData);
+    await member.save();
 
     // Promote 'user' role to 'member' upon profile completion
     if (req.user.role === 'user') {

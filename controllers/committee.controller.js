@@ -1,4 +1,5 @@
 const Committee = require('../models/committee.model');
+const mongoose = require('mongoose');
 const { sendSuccess, sendError } = require('../utils/response');
 
 const getCommittees = async (req, res) => {
@@ -70,8 +71,9 @@ const updateCommitteeMember = async (req, res) => {
     if (typeof committeeData.role === 'string') committeeData.role = JSON.parse(committeeData.role);
     if (typeof committeeData.socialLinks === 'string') committeeData.socialLinks = JSON.parse(committeeData.socialLinks);
 
-    const committee = await Committee.findByIdAndUpdate(committeeId, committeeData, { new: true });
-    return sendSuccess(res, 'Committee member updated successfully', committee);
+    Object.assign(existing, committeeData);
+    await existing.save();
+    return sendSuccess(res, 'Committee member updated successfully', existing);
   } catch (error) {
     return sendError(res, error.message, 500);
   }
@@ -79,7 +81,17 @@ const updateCommitteeMember = async (req, res) => {
 
 const getCommitteeMemberDetail = async (req, res) => {
   try {
-    const committee = await Committee.findById(req.params.committeeId);
+    const { committeeId } = req.params;
+    let committee = null;
+
+    // First try by slug (case-insensitive)
+    committee = await Committee.findOne({ slug: committeeId.toLowerCase().trim() });
+
+    // Fallback: look up by ObjectID
+    if (!committee && mongoose.Types.ObjectId.isValid(committeeId)) {
+      committee = await Committee.findById(committeeId);
+    }
+
     if (!committee) {
       return sendError(res, 'Committee member not found', 404);
     }
