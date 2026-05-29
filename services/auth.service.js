@@ -80,17 +80,18 @@ const updateUserProfile = async (userId, updateData) => {
 
   // Sync email, phone, fullName, and profilePhoto to Member profile if it exists
   const Member = require('../models/member.model');
-  const memberUpdate = { email: user.email, phone: user.phone };
-  if (user.fullName) {
-    memberUpdate['name.en'] = user.fullName;
+  const member = await Member.findOne({ user: userId });
+  if (member) {
+    member.email = user.email;
+    member.phone = user.phone;
+    if (user.fullName) {
+      member.name.en = user.fullName;
+    }
+    if (user.profilePhoto) {
+      member.profilePhoto = user.profilePhoto;
+    }
+    await member.save();
   }
-  if (user.profilePhoto) {
-    memberUpdate.profilePhoto = user.profilePhoto;
-  }
-  await Member.findOneAndUpdate(
-    { user: userId },
-    memberUpdate
-  );
 
   return user;
 };
