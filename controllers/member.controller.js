@@ -1,4 +1,6 @@
 const Member = require('../models/member.model');
+const User = require('../models/user.model');
+const mongoose = require('mongoose');
 const { sendSuccess, sendError } = require('../utils/response');
 const getPaginationOptions = require('../utils/pagination');
 const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
@@ -30,7 +32,7 @@ const getMembers = async (req, res) => {
       ];
     }
 
-    const members = await Member.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
+    const members = await Member.find(filter).populate('user', 'username').skip(skip).limit(limit).sort({ createdAt: -1 });
     const total = await Member.countDocuments(filter);
 
     return sendSuccess(res, 'Members retrieved successfully', {
@@ -45,7 +47,21 @@ const getMembers = async (req, res) => {
 
 const getMemberDetail = async (req, res) => {
   try {
-    const member = await Member.findById(req.params.memberId);
+    const { memberId } = req.params;
+    let member = null;
+
+    if (mongoose.Types.ObjectId.isValid(memberId)) {
+      member = await Member.findById(memberId).populate('user', 'username');
+    }
+
+    if (!member) {
+      const usernameLower = memberId.toLowerCase().trim();
+      const user = await User.findOne({ username: usernameLower });
+      if (user) {
+        member = await Member.findOne({ user: user._id }).populate('user', 'username');
+      }
+    }
+
     if (!member) {
       return sendError(res, 'Member not found', 404);
     }
@@ -285,7 +301,7 @@ const getAllMembersAdmin = async (req, res) => {
       filter.batch = { $in: req.user.allowedBatches };
     }
 
-    const members = await Member.find(filter).sort({ createdAt: -1 });
+    const members = await Member.find(filter).populate('user', 'username').sort({ createdAt: -1 });
     return sendSuccess(res, 'All members retrieved for admin successfully', members);
   } catch (error) {
     return sendError(res, error.message, 500);
