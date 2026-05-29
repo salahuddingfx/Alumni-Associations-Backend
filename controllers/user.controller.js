@@ -13,11 +13,12 @@ const getAllUsers = async (req, res) => {
 const approveUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findByIdAndUpdate(userId, { isApproved: true }, { new: true }).select('-password');
-    if (!user) {
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
       return sendError(res, 'User not found', 404);
     }
-    return sendSuccess(res, 'User approved successfully', user);
+    const user = await User.findByIdAndUpdate(userId, { isApproved: !existingUser.isApproved }, { new: true }).select('-password');
+    return sendSuccess(res, 'User approval status updated successfully', user);
   } catch (error) {
     return sendError(res, error.message, 500);
   }
