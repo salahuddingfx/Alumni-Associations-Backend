@@ -16,6 +16,13 @@ router.post(
   upload.single('image'),
   committeeController.createCommitteeMember
 );
+router.put(
+  '/:committeeId',
+  authMiddleware,
+  adminMiddleware(['superadmin', 'admin', 'moderator']),
+  upload.single('image'),
+  committeeController.updateCommitteeMember
+);
 router.delete(
   '/:committeeId',
   authMiddleware,
