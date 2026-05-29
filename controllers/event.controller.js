@@ -78,10 +78,65 @@ const deleteEvent = async (req, res) => {
   }
 };
 
+const getEventSeating = async (req, res) => {
+  try {
+    const EventSeating = require('../models/eventSeating.model');
+    const seating = await EventSeating.find({ eventId: req.params.eventId });
+    return sendSuccess(res, 'Event seating retrieved successfully', seating);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
+const bookEventSeat = async (req, res) => {
+  try {
+    const EventSeating = require('../models/eventSeating.model');
+    const Member = require('../models/member.model');
+    const { tableNumber, seatNumber } = req.body;
+    
+    const member = await Member.findOne({ user: req.user.id });
+    if (!member) {
+      return sendError(res, 'You need an active alumni profile to book a seat.', 400);
+    }
+    
+    const existingBooking = await EventSeating.findOne({ eventId: req.params.eventId, occupiedBy: member._id });
+    if (existingBooking) {
+      return sendError(res, `You have already booked Table ${existingBooking.tableNumber}, Seat ${existingBooking.seatNumber}.`, 400);
+    }
+    
+    const seat = await EventSeating.findOneAndUpdate(
+      { eventId: req.params.eventId, tableNumber, seatNumber },
+      { 
+        occupiedBy: member._id, 
+        occupiedByName: member.name.en, 
+        batch: member.batch 
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+    
+    try {
+      const { getIO } = require('../config/socket');
+      const io = getIO();
+      io.emit('seat_booked', { eventId: req.params.eventId, seat });
+    } catch (e) {
+      console.log('Socket seat emit error:', e.message);
+    }
+    
+    return sendSuccess(res, 'Seat booked successfully', seat);
+  } catch (error) {
+    if (error.code === 11000) {
+      return sendError(res, 'This seat is already booked by someone else.', 400);
+    }
+    return sendError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   getEvents,
   getEventDetail,
   createEvent,
   updateEvent,
   deleteEvent,
+  getEventSeating,
+  bookEventSeat,
 };

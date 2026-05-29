@@ -31,6 +31,8 @@ router.put(
 router.get('/my/registrations', authMiddleware, eventRegistrationController.getMyRegistrations);
 router.get('/', eventController.getEvents);
 router.get('/:eventId', eventController.getEventDetail);
+router.get('/:eventId/seating', authMiddleware, eventController.getEventSeating);
+router.post('/:eventId/seating/book', authMiddleware, eventController.bookEventSeat);
 
 // Protected routes (Admins & Moderators)
 router.post(
