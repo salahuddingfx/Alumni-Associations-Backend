@@ -14,14 +14,14 @@ router.post(
   '/',
   authMiddleware,
   adminMiddleware(['superadmin', 'admin', 'moderator']),
-  upload.single('image'),
+  upload.fields([{ name: 'image', maxCount: 1 }, { name: 'bannerPhoto', maxCount: 1 }]),
   committeeController.createCommitteeMember
 );
 router.put(
   '/:committeeId',
   authMiddleware,
   adminMiddleware(['superadmin', 'admin', 'moderator']),
-  upload.single('image'),
+  upload.fields([{ name: 'image', maxCount: 1 }, { name: 'bannerPhoto', maxCount: 1 }]),
   committeeController.updateCommitteeMember
 );
 router.delete(
