@@ -173,6 +173,90 @@ const updateMyProfile = async (req, res) => {
   }
 };
 
+const getMyIdCard = async (req, res) => {
+  try {
+    const { generateSecret, generateTOTP } = require('../utils/totp');
+    let member = await Member.findOne({ user: req.user.id });
+    if (!member) {
+      return sendError(res, 'Member profile not found. Please create a profile first.', 404);
+    }
+    
+    if (!member.totpSecret) {
+      member.totpSecret = generateSecret();
+      await member.save();
+    }
+    
+    const token = generateTOTP(member.totpSecret);
+    const timeStep = 30;
+    const expiresIn = timeStep - (Math.floor(Date.now() / 1000) % timeStep);
+    
+    const verificationUrl = `https://practonalumni.org/verify-id?id=${member._id}&token=${token}`;
+    
+    return sendSuccess(res, 'ID Card data retrieved successfully', {
+      member: {
+        _id: member._id,
+        name: member.name,
+        batch: member.batch,
+        pscBatch: member.pscBatch,
+        profilePhoto: member.profilePhoto,
+        profession: member.profession,
+        bloodGroup: member.bloodGroup,
+        gender: member.gender,
+        isApproved: member.isApproved,
+      },
+      totpToken: token,
+      expiresIn,
+      verificationUrl
+    });
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
+const downloadPkpass = async (req, res) => {
+  try {
+    let member = await Member.findOne({ user: req.user.id });
+    if (!member) {
+      return res.status(404).send('Member profile not found.');
+    }
+    
+    res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
+    res.setHeader('Content-Disposition', `attachment; filename=idcard_${member._id}.pkpass`);
+    
+    const passData = {
+      formatVersion: 1,
+      passTypeIdentifier: "pass.org.practon.alumni",
+      serialNumber: member._id.toString(),
+      teamIdentifier: "PRACTONALUM",
+      organizationName: "Practon Alumni Association",
+      description: "Virtual Alumni ID Card",
+      logoText: "প্রাক্তন পরিষদ",
+      foregroundColor: "rgb(255, 255, 255)",
+      backgroundColor: "rgb(0, 59, 115)",
+      labelColor: "rgb(249, 168, 38)",
+      generic: {
+        primaryFields: [
+          { key: "name", label: "ALUMNUS", value: member.name.en }
+        ],
+        secondaryFields: [
+          { key: "batch", label: "BATCH", value: member.batch }
+        ],
+        auxiliaryFields: [
+          { key: "blood", label: "BLOOD", value: member.bloodGroup || "N/A" }
+        ],
+        backFields: [
+          { key: "phone", label: "Phone", value: member.phone || "N/A" },
+          { key: "email", label: "Email", value: member.email }
+        ]
+      }
+    };
+    
+    return res.send(Buffer.from(JSON.stringify(passData, null, 2)));
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
+
 module.exports = {
   getMembers,
   getMemberDetail,
@@ -182,4 +266,6 @@ module.exports = {
   deleteMember,
   getMyProfile,
   updateMyProfile,
+  getMyIdCard,
+  downloadPkpass,
 };
