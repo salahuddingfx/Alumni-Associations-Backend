@@ -22,6 +22,10 @@ const committeeSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  bannerPhoto: {
+    type: String,
+    default: '',
+  },
   socialLinks: {
     facebook: { type: String, default: '' },
     linkedin: { type: String, default: '' },
