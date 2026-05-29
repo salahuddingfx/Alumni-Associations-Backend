@@ -17,6 +17,13 @@ router.post(
   upload.single('thumbnail'),
   blogController.createBlog
 );
+router.put(
+  '/:blogId',
+  authMiddleware,
+  adminMiddleware(['superadmin', 'admin', 'moderator']),
+  upload.single('thumbnail'),
+  blogController.updateBlog
+);
 router.delete(
   '/:blogId',
   authMiddleware,
