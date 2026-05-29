@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
     enum: ['superadmin', 'admin', 'moderator'],
     default: 'moderator',
   },
+  allowedBatches: {
+    type: [String],
+    default: [],
+  },
   fullName: {
     type: String,
     default: '',
