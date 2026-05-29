@@ -3,11 +3,19 @@ const { getIO } = require('../config/socket');
 const emitRealtimeNotice = (notice) => {
   try {
     const io = getIO();
-    io.emit('new_notice', {
+    const payload = {
       success: true,
       message: 'A new notice has been published!',
       data: notice,
-    });
+    };
+
+    if (notice.targetBatch) {
+      io.to(`batch_${notice.targetBatch}`).emit('new_notice', payload);
+    } else if (notice.targetChapter) {
+      io.to(`chapter_${notice.targetChapter}`).emit('new_notice', payload);
+    } else {
+      io.emit('new_notice', payload);
+    }
   } catch (error) {
     console.error('Socket emission error:', error.message);
   }
