@@ -23,11 +23,10 @@ const uploadToCloudinary = async (localFilePath, folder = 'practon_alumni') => {
     
     return result.secure_url;
   } catch (error) {
-    // Ensure clean up of local file even on failure
-    if (fs.existsSync(localFilePath)) {
-      fs.unlinkSync(localFilePath);
-    }
-    throw error;
+    console.error('Cloudinary upload failed, falling back to local storage:', error.message);
+    const path = require('path');
+    const filename = path.basename(localFilePath);
+    return `/uploads/${filename}`;
   }
 };
 
