@@ -150,9 +150,15 @@ const getMyProfile = async (req, res) => {
 
 const updateMyProfile = async (req, res) => {
   try {
+    // With upload.fields(), files are in req.files[fieldname][0]
     let profilePhoto = req.body.profilePhoto || '';
-    if (req.file) {
-      profilePhoto = await uploadToCloudinary(req.file.path, 'member_profiles');
+    if (req.files && req.files['profilePhoto'] && req.files['profilePhoto'][0]) {
+      profilePhoto = await uploadToCloudinary(req.files['profilePhoto'][0].path, 'member_profiles');
+    }
+
+    let bannerPhoto = req.body.bannerPhoto || '';
+    if (req.files && req.files['bannerPhoto'] && req.files['bannerPhoto'][0]) {
+      bannerPhoto = await uploadToCloudinary(req.files['bannerPhoto'][0].path, 'member_banners');
     }
 
     const isSpecialRole = ['superadmin', 'admin', 'moderator'].includes(req.user.role);
@@ -169,6 +175,10 @@ const updateMyProfile = async (req, res) => {
 
     if (profilePhoto) {
       memberData.profilePhoto = profilePhoto;
+    }
+
+    if (bannerPhoto) {
+      memberData.bannerPhoto = bannerPhoto;
     }
 
     if (typeof memberData.name === 'string') memberData.name = JSON.parse(memberData.name);
