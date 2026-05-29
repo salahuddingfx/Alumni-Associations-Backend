@@ -64,16 +64,43 @@ const startServer = async () => {
   initSocket(server);
 
   server.listen(PORT, async () => {
-    // Creative terminal UI with typing effect
-    await typeMessage('\n==================================================================');
-    await typeMessage('  🚀 PRACTON ALUMNI ASSOCIATION PLATFORM (প্রাক্তন পরিষদ)  ');
-    await typeMessage('==================================================================');
-    await typeMessage(`  [✓] DB Connected successfully`);
-    await typeMessage(`  [✓] Server running on PORT: ${PORT}`);
-    await typeMessage(`  [✓] WebSocket Sockets channels active`);
-    await typeMessage('  ----------------------------------------------------------------');
-    await typeMessage('  🔥 Developed by: Salah Uddin Kader (Dpian)');
-    await typeMessage('==================================================================\n');
+    const color = {
+      cyan: '\x1b[36m',
+      green: '\x1b[32m',
+      yellow: '\x1b[33m',
+      blue: '\x1b[34m',
+      magenta: '\x1b[35m',
+      red: '\x1b[31m',
+      brightGreen: '\x1b[92m',
+      brightBlue: '\x1b[94m',
+      brightCyan: '\x1b[96m',
+      bold: '\x1b[1m',
+      reset: '\x1b[0m'
+    };
+
+    const asciiBanner = `
+${color.brightCyan}${color.bold}  ____  ____    _    ____ _____ ___  _   _ 
+ |  _ \\|  _ \\  / \\  / ___|_   _/ _ \\| \\ | |
+ | |_) | |_) |/ _ \\| |     | || | | |  \\| |
+ |  __/|  _ < / ___ \\ |___  | || |_| | |\\  |
+ |_|   |_| \\_/_/   \\_\\____| |_| \\___/|_| \\_|
+${color.brightBlue}${color.bold}      /\\   | |   | |  | |  |  \\/  |  | \\ | | |_   _|
+     /  \\  | |   | |  | |  | \\  / |  |  \\| |   | |  
+    / /\\ \\ | |   | |  | |  | |\\/| |  | . \` |   | |  
+   / ____ \\| |___| |__| |  | |  | |  | |\\  |  _| |_ 
+  /_/    \\_\\______\\____/   |_|  |_|  |_| \\_| |_____|${color.reset}
+`;
+
+    console.log(asciiBanner);
+    await typeMessage(`${color.yellow}${color.bold}==================================================================${color.reset}`);
+    await typeMessage(`  🚀 ${color.brightCyan}${color.bold}PRACTON ALUMNI ASSOCIATION PLATFORM${color.reset} (প্রাক্তন শিক্ষার্থী পরিষদ)`);
+    await typeMessage(`${color.yellow}${color.bold}==================================================================${color.reset}`);
+    await typeMessage(`  ${color.brightGreen}[✓]${color.green} DB Connected successfully${color.reset}`);
+    await typeMessage(`  ${color.brightGreen}[✓]${color.green} Server running on PORT: ${color.brightCyan}${PORT}${color.reset}`);
+    await typeMessage(`  ${color.brightGreen}[✓]${color.green} WebSocket Sockets channels active${color.reset}`);
+    await typeMessage(`${color.yellow}  ----------------------------------------------------------------${color.reset}`);
+    await typeMessage(`  🔥 ${color.magenta}Developed by: ${color.brightCyan}${color.bold}Salah Uddin Kader (Dpian)${color.reset}`);
+    await typeMessage(`${color.yellow}${color.bold}==================================================================${color.reset}\n`);
   });
 };
 
