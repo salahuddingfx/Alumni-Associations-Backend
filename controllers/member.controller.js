@@ -97,12 +97,14 @@ const getPendingMembers = async (req, res) => {
 const approveMember = async (req, res) => {
   try {
     const { logActivity } = require('../utils/logger');
-    const member = await Member.findByIdAndUpdate(req.params.memberId, { isApproved: true }, { new: true });
-    if (!member) {
+    const existing = await Member.findById(req.params.memberId);
+    if (!existing) {
       return sendError(res, 'Member not found', 404);
     }
-    await logActivity(req, 'MEMBER_APPROVED', { memberId: member._id, name: member.name.en, batch: member.batch });
-    return sendSuccess(res, 'Member approved successfully', member);
+    const newStatus = !existing.isApproved;
+    const member = await Member.findByIdAndUpdate(req.params.memberId, { isApproved: newStatus }, { new: true });
+    await logActivity(req, newStatus ? 'MEMBER_APPROVED' : 'MEMBER_SUSPENDED', { memberId: member._id, name: member.name.en, batch: member.batch });
+    return sendSuccess(res, `Member ${newStatus ? 'approved' : 'suspended'} successfully`, member);
   } catch (error) {
     return sendError(res, error.message, 500);
   }
@@ -261,6 +263,22 @@ const downloadPkpass = async (req, res) => {
   }
 };
 
+const getAllMembersAdmin = async (req, res) => {
+  try {
+    const filter = {};
+
+    // Batch representative scoped filter for moderators
+    if (req.user && req.user.role === 'moderator' && Array.isArray(req.user.allowedBatches) && req.user.allowedBatches.length > 0) {
+      filter.batch = { $in: req.user.allowedBatches };
+    }
+
+    const members = await Member.find(filter).sort({ createdAt: -1 });
+    return sendSuccess(res, 'All members retrieved for admin successfully', members);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   getMembers,
   getMemberDetail,
@@ -272,4 +290,5 @@ module.exports = {
   updateMyProfile,
   getMyIdCard,
   downloadPkpass,
+  getAllMembersAdmin,
 };
