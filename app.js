@@ -20,6 +20,7 @@ const blogRoutes = require('./routes/blog.routes');
 const donationRoutes = require('./routes/donation.routes');
 const settingRoutes = require('./routes/setting.routes');
 const partnerRoutes = require('./routes/partner.routes');
+const contactRoutes = require('./routes/contact.routes');
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/v1/blogs', blogRoutes);
 app.use('/api/v1/donations', donationRoutes);
 app.use('/api/v1/settings', settingRoutes);
 app.use('/api/v1/partners', partnerRoutes);
+app.use('/api/v1/contact', contactRoutes);
 
 // Test Route
 app.get('/health', (req, res) => {
