@@ -35,6 +35,12 @@ const initiateCheckout = async (req, res) => {
       status: 'completed', // For mock purposes, approve instantly
     });
 
+    // Notify administrators of the new donation received
+    const { sendDonationAlertEmail } = require('../utils/email');
+    sendDonationAlertEmail(donation).catch((err) => {
+      console.error(`Failed to send donation alert email to admin for donation ${donation._id}:`, err.message);
+    });
+
     return sendSuccess(res, 'Checkout simulated successfully. Payment received.', donation, 201);
   } catch (error) {
     return sendError(res, error.message, 400);
