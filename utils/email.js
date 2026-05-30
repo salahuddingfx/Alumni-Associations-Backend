@@ -585,6 +585,231 @@ const getAdminNotificationTemplate = (registration, event) => {
 };
 
 /**
+ * Resolves the email address(es) of administrators dynamically from the database.
+ * If no superadmin/admin users are found, falls back to settings or a default email.
+ * @returns {Promise<string>} Comma-separated administrator emails
+ */
+const getAdminEmails = async () => {
+  try {
+    const User = require('../models/user.model');
+    const Setting = require('../models/setting.model');
+
+    const admins = await User.find({ role: { $in: ['superadmin', 'admin'] } }).select('email');
+    if (admins && admins.length > 0) {
+      const emailList = admins.map(a => a.email).filter(Boolean);
+      if (emailList.length > 0) {
+        return emailList.join(',');
+      }
+    }
+
+    const setting = await Setting.findOne({ key: 'general_settings' });
+    if (setting && setting.value && setting.value.email) {
+      return setting.value.email;
+    }
+  } catch (err) {
+    console.error('⚠️ Failed to dynamically retrieve administrator emails from database:', err.message);
+  }
+  
+  return 'info.dpianalumniassociation@gmail.com';
+};
+
+/**
+ * Generate HTML email template for contact form inquiries.
+ */
+const getContactFormTemplate = ({ name, email, subject, message }) => {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>New Contact Form Inquiry</title>
+    <style>
+      body { font-family: sans-serif; background-color: #f1f5f9; color: #1e293b; padding: 20px; }
+      .card { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 8px solid #003b73; }
+      .header { background: #003b73; padding: 20px; text-align: center; color: white; }
+      .content { padding: 25px 20px; }
+      .field { margin-bottom: 15px; }
+      .label { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-bottom: 3px; }
+      .value { font-size: 14px; font-weight: 500; }
+      .message-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; margin-top: 5px; }
+      .footer { background: #f8fafc; padding: 15px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #cbd5e1; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="header">
+        <h2 style="margin: 0; font-size: 18px;">New Contact Message Received</h2>
+        <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Practon Alumni Association Portal</span>
+      </div>
+      <div class="content">
+        <div class="field">
+          <div class="label">Sender Name</div>
+          <div class="value">${name}</div>
+        </div>
+        <div class="field">
+          <div class="label">Sender Email</div>
+          <div class="value"><a href="mailto:${email}">${email}</a></div>
+        </div>
+        <div class="field">
+          <div class="label">Subject</div>
+          <div class="value" style="font-weight: 600;">${subject}</div>
+        </div>
+        <div class="field">
+          <div class="label">Message</div>
+          <div class="message-box">${message}</div>
+        </div>
+      </div>
+      <div class="footer">
+        This notification was generated automatically from the contact form submission.
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+/**
+ * Generate HTML email template for pending member profiles.
+ */
+const getPendingMemberTemplate = (member) => {
+  const nameEn = member.name?.en || 'N/A';
+  const batch = member.batch || 'N/A';
+  const pscBatch = member.pscBatch || 'N/A';
+  const profession = member.profession || 'N/A';
+  const email = member.email || 'N/A';
+  const phone = member.phone || 'N/A';
+  
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>New Member Profile Verification Required</title>
+    <style>
+      body { font-family: sans-serif; background-color: #f1f5f9; color: #1e293b; padding: 20px; }
+      .card { max-w: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 8px solid #f59e0b; }
+      .header { background: #d97706; padding: 20px; text-align: center; color: white; }
+      .content { padding: 25px 20px; }
+      .field-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding: 8px 0; }
+      .label { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
+      .value { font-size: 13px; font-weight: 600; }
+      .btn { display: inline-block; background-color: #d97706; color: white !important; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: bold; margin-top: 20px; text-align: center; }
+      .footer { background: #f8fafc; padding: 15px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #cbd5e1; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="header">
+        <h2 style="margin: 0; font-size: 18px;">Pending Member Verification</h2>
+        <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Action Required</span>
+      </div>
+      <div class="content">
+        <p style="font-size: 13px; color: #475569; margin-top: 0;">A new alumnus has completed registration and submitted their profile for verification. Please review their details:</p>
+        
+        <div class="field-row">
+          <span class="label">Alumnus Name</span>
+          <span class="value">${nameEn}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">SSC / Batch</span>
+          <span class="value">${batch}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">PSC Batch</span>
+          <span class="value">${pscBatch}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">Profession</span>
+          <span class="value">${profession}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">Email</span>
+          <span class="value">${email}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">Phone</span>
+          <span class="value">${phone}</span>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="${process.env.ADMIN_URL || 'http://localhost:5174'}/member-approvals" class="btn">Go to Member Approvals</a>
+        </div>
+      </div>
+      <div class="footer">
+        This notification was generated automatically because a member profile was submitted on the Practon Alumni Platform.
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+/**
+ * Generate HTML email template for donation alerts.
+ */
+const getDonationAlertTemplate = (donation) => {
+  const donorName = donation.donorName?.en || 'Donor';
+  const amount = donation.amount || 0;
+  const paymentMethod = donation.paymentMethod || 'N/A';
+  const transactionId = donation.transactionId || 'N/A';
+  const email = donation.email || 'N/A';
+  
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>New Donation Received Alert</title>
+    <style>
+      body { font-family: sans-serif; background-color: #f1f5f9; color: #1e293b; padding: 20px; }
+      .card { max-w: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 8px solid #10b981; }
+      .header { background: #059669; padding: 20px; text-align: center; color: white; }
+      .content { padding: 25px 20px; }
+      .field-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding: 8px 0; }
+      .label { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
+      .value { font-size: 13px; font-weight: 600; }
+      .amount-display { font-size: 24px; font-weight: bold; color: #059669; text-align: center; margin: 15px 0; }
+      .footer { background: #f8fafc; padding: 15px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #cbd5e1; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="header">
+        <h2 style="margin: 0; font-size: 18px;">Donation Contribution Received</h2>
+        <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Welfare Fund Alert</span>
+      </div>
+      <div class="content">
+        <p style="font-size: 13px; color: #475569; margin-top: 0; text-align: center;">A new donation transaction has been completed successfully on the portal.</p>
+        
+        <div class="amount-display">৳ ${amount} BDT</div>
+
+        <div class="field-row">
+          <span class="label">Donor Name</span>
+          <span class="value">${donation.isAnonymous ? 'Anonymous' : donorName}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">Donor Email</span>
+          <span class="value">${donation.isAnonymous ? 'Hidden (Anonymous)' : email}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">Payment Method</span>
+          <span class="value">${paymentMethod}</span>
+        </div>
+        <div class="field-row">
+          <span class="label">Transaction ID</span>
+          <span class="value" style="font-family: monospace;">${transactionId}</span>
+        </div>
+      </div>
+      <div class="footer">
+        This notification was generated automatically because a welfare donation was completed on the Practon Alumni Platform.
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+/**
  * Send event ticket confirmation email.
  * @param {object} registration The event registration object
  * @param {object} event The event details object
@@ -601,15 +826,54 @@ const sendTicketEmail = async (registration, event) => {
 /**
  * Send full registration details email to administration.
  * @param {object} registration The event registration object
- * @param {object} event The event details object
+ * @param {object} event The event details document
  * @returns {Promise<object>} Send email result
  */
 const sendAdminNotificationEmail = async (registration, event) => {
-  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info.dpianalumniassociation@gmail.com';
+  const adminEmails = await getAdminEmails();
   return sendEmail({
-    to: adminEmail,
+    to: adminEmails,
     subject: `🔔 Admin Alert: New Event Registration by ${registration.fullName}`,
     html: getAdminNotificationTemplate(registration, event),
+  });
+};
+
+/**
+ * Send contact form submission email to administration.
+ */
+const sendContactFormEmail = async ({ name, email, subject, message }) => {
+  const adminEmails = await getAdminEmails();
+  return sendEmail({
+    to: adminEmails,
+    subject: `✉️ New Contact Form Inquiry: ${subject}`,
+    html: getContactFormTemplate({ name, email, subject, message }),
+  });
+};
+
+/**
+ * Send pending member verification email to administration.
+ */
+const sendPendingMemberEmail = async (member) => {
+  const adminEmails = await getAdminEmails();
+  const nameEn = member.name?.en || 'N/A';
+  return sendEmail({
+    to: adminEmails,
+    subject: `🔔 Admin Alert: Pending Verification for ${nameEn}`,
+    html: getPendingMemberTemplate(member),
+  });
+};
+
+/**
+ * Send donation alert email to administration.
+ */
+const sendDonationAlertEmail = async (donation) => {
+  const adminEmails = await getAdminEmails();
+  const donorName = donation.donorName?.en || 'Donor';
+  const displayDonor = donation.isAnonymous ? 'Anonymous' : donorName;
+  return sendEmail({
+    to: adminEmails,
+    subject: `💰 Admin Alert: New Donation of ৳${donation.amount} received from ${displayDonor}`,
+    html: getDonationAlertTemplate(donation),
   });
 };
 
@@ -640,6 +904,9 @@ module.exports = {
   transporter,
   sendTicketEmail,
   sendAdminNotificationEmail,
+  sendContactFormEmail,
+  sendPendingMemberEmail,
+  sendDonationAlertEmail,
   sendTestEmail,
   sendEmail,
 };
