@@ -84,6 +84,12 @@ const createMemberProfile = async (req, res) => {
     const member = new Member(memberData);
     await member.save();
 
+    // Notify administrators of pending profile approval
+    const { sendPendingMemberEmail } = require('../utils/email');
+    sendPendingMemberEmail(member).catch((err) => {
+      console.error(`Failed to send admin notification email for pending member profile ${member._id}:`, err.message);
+    });
+
     return sendSuccess(res, 'Member profile submitted for approval', member, 201);
   } catch (error) {
     return sendError(res, error.message, 400);
